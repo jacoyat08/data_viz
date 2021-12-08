@@ -49,9 +49,8 @@ class Histogram {
         const values = this.yValuesInput.value.split(',')
             .map(value => parseInt(value))
             .filter(value => !isNaN(value));
-        const maxValue = Math.max.apply(this, values);
+        const maxValue = values.length ? Math.max.apply(this, values) : 0;
         
-
         // Get bin width and count
         const binWidth = parseInt(this.binInput.value);
         const binCount = Math.ceil(maxValue / binWidth);
