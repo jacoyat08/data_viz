@@ -1,0 +1,16 @@
+#histogram {
+    max-width: 800px;
+}
+
+#histogram-chart {
+    height: 300px;
+    width: 100%;
+}
+
+#histogram-chart text {
+    text-anchor: middle;
+}
+
+#histogram-chart-title {
+    font-weight: bold;
+}
