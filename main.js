@@ -71,7 +71,8 @@ class Histogram {
         const labelsX = d3.axisBottom()
             .scale(xScale)
             .tickSize(-height)
-            .tickValues(ticksX);
+            .tickValues(ticksX)
+            .tickFormat(d => Math.round(d));
 
         this.chartXTicks.attr('transform', `translate(${this.margin.left}, ${height + this.margin.top})`)
             .call(labelsX)
