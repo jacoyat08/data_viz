@@ -53,7 +53,7 @@ class Histogram {
         
         // Get bin width and count
         const binWidth = parseInt(this.binInput.value);
-        const binCount = Math.ceil(maxValue / binWidth);
+        const binCount = Math.ceil(maxValue / binWidth) + 1;
 
         // Get chart container size
         const width = this.chartContainer.clientWidth - this.margin.left - this.margin.right;
