@@ -13,15 +13,7 @@ class Histogram {
         this.yValuesInput = document.getElementById('histogram-y-values');
         this.binInput = document.getElementById('histogram-bin');
         this.chartContainer = document.getElementById('histogram-chart-container');
-
-        // Bind listeners
-        this.update = this.update.bind(this);
-        this.titleInput.addEventListener('input', this.update);
-        this.xAxisInput.addEventListener('input', this.update);
-        this.yAxisInput.addEventListener('input', this.update);
-        this.yValuesInput.addEventListener('input', this.update);
-        this.binInput.addEventListener('input', this.update);
-        window.addEventListener('resize', this.update);
+        this.downloadButton = document.getElementById('histogram-download');
 
         // Create chart
         this.chart = d3.select('#histogram-chart');
@@ -32,13 +24,27 @@ class Histogram {
         this.chartYTicks = d3.select('#histogram-chart-y-ticks');
         this.chartBars = d3.select('#histogram-chart-bars');
 
+        // Create canvas
+        this.canvas = document.createElement('canvas');
+        this.ctx = this.canvas.getContext('2d');
+
         // Set margins 
         this.margin = {
             bottom: 40,
             left: 40,
             right: 20,
-            top: 30,
+            top: 50,
         };
+
+        // Bind listeners
+        this.update = this.update.bind(this);
+        this.titleInput.addEventListener('input', this.update);
+        this.xAxisInput.addEventListener('input', this.update);
+        this.yAxisInput.addEventListener('input', this.update);
+        this.yValuesInput.addEventListener('input', this.update);
+        this.binInput.addEventListener('input', this.update);
+        this.downloadButton.addEventListener('click', this.download.bind(this));
+        window.addEventListener('resize', this.update);
 
         // Run for first render
         this.update();
@@ -50,7 +56,10 @@ class Histogram {
             .map(value => parseInt(value))
             .filter(value => !isNaN(value));
         const maxValue = values.length ? Math.max.apply(this, values) : 0;
-        
+
+        // Toggle download button
+        this.downloadButton.toggleAttribute('disabled', !values.length);
+
         // Get bin width and count
         const binWidth = parseInt(this.binInput.value);
         const binCount = Math.ceil(maxValue / binWidth) + 1;
@@ -132,6 +141,28 @@ class Histogram {
     tickStyle(g) {
         return g.selectAll('.tick line')
             .attr('stroke-opacity', 0.2);
+    }
+
+    download() {
+        // Set canvas size
+        this.canvas.width = this.chartContainer.clientWidth;
+        this.canvas.height = this.chartContainer.clientHeight;
+
+        // Render chart into canvas
+        const v = canvg.Canvg.fromString(this.ctx, this.chartContainer.innerHTML);
+        v.start();
+
+        // Create blob
+        this.canvas.toBlob(blob => {
+            // Create link
+            const link = document.createElement('a');
+            link.download = `${this.titleInput.value }.png`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+
+            // Stop rendering
+            v.stop();
+        });
     }
 
 }
