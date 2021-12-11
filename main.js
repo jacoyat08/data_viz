@@ -84,7 +84,7 @@ class Histogram {
         // Get bins, max y and chart height
         const bins = histogram(values);
         const maxY = d3.max(bins, d => d.length) + 1;
-        const height = Math.ceil((width / binCount) * maxY);
+        const height = values.length ? Math.ceil((width / binCount) * maxY) : 300;
 
         // Update y
         const yScale = d3.scaleLinear()
