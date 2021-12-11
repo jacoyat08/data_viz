@@ -64,9 +64,8 @@ class Histogram {
         const binWidth = parseInt(this.binInput.value);
         const binCount = Math.ceil(maxValue / binWidth) + 1;
 
-        // Get chart container size
+        // Get chart container width
         const width = this.chartContainer.clientWidth - this.margin.left - this.margin.right;
-        const height = this.chartContainer.clientHeight - this.margin.top - this.margin.bottom;
 
         // Update x
         const xScale = d3.scaleLinear()
@@ -77,6 +76,26 @@ class Histogram {
             .fill(0)
             .map((t, index) => binWidth * index);
 
+        // Generate histogram
+        const histogram = d3.bin()
+            .domain(xScale.domain())
+            .thresholds(ticksX);
+
+        // Get bins, max y and chart height
+        const bins = histogram(values);
+        const maxY = d3.max(bins, d => d.length) + 1;
+        const height = Math.ceil((width / binCount) * maxY);
+
+        // Update y
+        const yScale = d3.scaleLinear()
+            .range([height, 0])
+            .domain([0, maxY]);
+
+        const ticksY = new Array(maxY + 1)
+            .fill(0)
+            .map((t, index) => index);
+
+        // Update labels
         const labelsX = d3.axisBottom()
             .scale(xScale)
             .tickSize(-height)
@@ -86,25 +105,6 @@ class Histogram {
         this.chartXTicks.attr('transform', `translate(${this.margin.left}, ${height + this.margin.top})`)
             .call(labelsX)
             .call(this.tickStyle);
-
-        // Generate histogram
-        const histogram = d3.bin()
-            .domain(xScale.domain())
-            .thresholds(ticksX);
-
-        // Get bins
-        const bins = histogram(values);
-
-        // Update y ticks
-        const maxY = d3.max(bins, d => d.length);
-
-        const yScale = d3.scaleLinear()
-            .range([height, 0])
-            .domain([0, maxY]);
-
-        const ticksY = new Array(maxY + 1)
-            .fill(0)
-            .map((t, index) => index);
 
         const labelsY = d3.axisLeft()
             .scale(yScale)
@@ -132,10 +132,15 @@ class Histogram {
         bars.exit()
             .remove();
 
+        // Update container
+        const containerHeight = height + this.margin.top + this.margin.bottom;
+        this.chart.attr('height', containerHeight);
+
         // Update labels
         this.chartTitle.text(this.titleInput.value);
         this.chartXAxis.text(this.xAxisInput.value);
         this.chartYAxis.text(this.yAxisInput.value);
+        this.chartYAxis.attr('x', -Math.ceil(containerHeight / 2));
     }
 
     tickStyle(g) {
